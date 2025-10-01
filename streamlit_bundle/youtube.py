@@ -10,6 +10,180 @@ import time
 from PIL import Image, ImageEnhance
 from yt_dlp.utils import DownloadError
 
+# Configuração da página DEVE vir antes de qualquer outro comando Streamlit
+st.set_page_config(
+    page_title="Central de Ferramentas Multimídia",
+    page_icon="🎬",
+    layout="wide",
+    initial_sidebar_state="expanded",
+    menu_items={
+        'Get Help': 'https://github.com',
+        'Report a bug': "https://github.com",
+        'About': "# Central de Ferramentas Multimídia 🎬\nFerramentas completas para processamento de mídia!"
+    }
+)
+
+# CSS customizado para design moderno
+st.markdown("""
+<style>
+    /* Tema principal */
+    :root {
+        --primary-color: #FF4B4B;
+        --secondary-color: #0E1117;
+        --accent-color: #262730;
+    }
+    
+    /* Sidebar moderna */
+    [data-testid="stSidebar"] {
+        background: linear-gradient(180deg, #1E1E1E 0%, #0E1117 100%);
+    }
+    
+    [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p {
+        font-size: 16px;
+        font-weight: 500;
+    }
+    
+    /* Botões modernos com hover effect */
+    .stButton>button {
+        width: 100%;
+        border-radius: 10px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+    
+    .stButton>button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 16px rgba(102, 126, 234, 0.4);
+        border-color: #667eea;
+    }
+    
+    /* Cards com sombra */
+    .stAlert {
+        border-radius: 12px;
+        border-left: 4px solid #667eea;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    
+    /* Input fields modernos */
+    .stTextInput>div>div>input,
+    .stTextArea>div>div>textarea,
+    .stSelectbox>div>div>select {
+        border-radius: 8px;
+        border: 2px solid #262730;
+        transition: all 0.3s ease;
+    }
+    
+    .stTextInput>div>div>input:focus,
+    .stTextArea>div>div>textarea:focus,
+    .stSelectbox>div>div>select:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+    
+    /* Progress bars modernas */
+    .stProgress > div > div > div {
+        background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+        border-radius: 10px;
+    }
+    
+    /* Tabs modernas */
+    .stTabs [data-baseweb="tab-list"] {
+        gap: 8px;
+        background-color: transparent;
+    }
+    
+    .stTabs [data-baseweb="tab"] {
+        border-radius: 8px 8px 0 0;
+        padding: 12px 24px;
+        background-color: #262730;
+        border: none;
+        transition: all 0.3s ease;
+    }
+    
+    .stTabs [aria-selected="true"] {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    
+    /* Expander moderno */
+    .streamlit-expanderHeader {
+        border-radius: 8px;
+        background-color: #262730;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .streamlit-expanderHeader:hover {
+        background-color: #2E2E38;
+    }
+    
+    /* Métricas com destaque */
+    [data-testid="stMetricValue"] {
+        font-size: 2rem;
+        font-weight: 700;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+    
+    /* Headers com gradiente */
+    h1 {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        font-weight: 800;
+        padding: 20px 0;
+    }
+    
+    h2, h3 {
+        color: #667eea;
+        font-weight: 700;
+    }
+    
+    /* Animação suave ao carregar */
+    .element-container {
+        animation: fadeIn 0.5s ease-in;
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    /* Scrollbar customizada */
+    ::-webkit-scrollbar {
+        width: 10px;
+        height: 10px;
+    }
+    
+    ::-webkit-scrollbar-track {
+        background: #1E1E1E;
+        border-radius: 10px;
+    }
+    
+    ::-webkit-scrollbar-thumb {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 10px;
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+        background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+    }
+    
+    /* Download buttons especiais */
+    .stDownloadButton>button {
+        background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        border: none;
+    }
+    
+    .stDownloadButton>button:hover {
+        box-shadow: 0 8px 16px rgba(56, 239, 125, 0.4);
+    }
+</style>
+""", unsafe_allow_html=True)
+
 # Importação opcional para speedtest
 try:
     import speedtest
@@ -891,23 +1065,33 @@ def run_speedtest():
                             # primary color for value, subtle grey for remainder
                             donut = _go.Figure(data=[_go.Pie(values=[val_clamped, remaining],
                                                             labels=[f'Download (Mbps)', ''],
-                                                            hole=0.6, sort=False, rotation=180, direction='clockwise',
-                                                            domain={'x':[0,1], 'y':[0,0.5]},
-                                                            marker=dict(colors=['#4cc9f0', '#e9ecef']))])
+                                                            hole=0.7, sort=False, rotation=90, direction='clockwise',
+                                                            startangle=90,
+                                                            domain={'x':[0,1], 'y':[0,1]},
+                                                            marker=dict(colors=['#4cc9f0', 'rgba(233, 236, 239, 0.2)']))])
                             donut.update_traces(textinfo='none', hoverinfo='label+value')
-                            donut.update_layout(height=260, margin={'t':6,'b':6,'l':6,'r':6}, paper_bgcolor='rgba(0,0,0,0)', showlegend=False,
-                                               annotations=[dict(text=f"{val_clamped:.1f} Mbps", x=0.5, y=0.18, font=dict(size=14), showarrow=False)])
+                            donut.update_layout(height=280, margin={'t':10,'b':10,'l':10,'r':10}, 
+                                               paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)',
+                                               showlegend=False,
+                                               annotations=[dict(text=f"{val_clamped:.1f}<br><span style='font-size:10px'>Mbps</span>", 
+                                                               x=0.5, y=0.35, font=dict(size=18, color='#4cc9f0'), 
+                                                               showarrow=False, align='center')])
                             chart_ph.plotly_chart(donut, use_container_width=True)
                             try:
                                 # Also show a compact semicircle in the small Download column while measuring
                                 compact = _go.Figure(data=[_go.Pie(values=[val_clamped, remaining],
                                                                  labels=[f'DL', ''],
-                                                                 hole=0.6, sort=False, rotation=180, direction='clockwise',
-                                                                 domain={'x':[0,1], 'y':[0,0.6]},
-                                                                 marker=dict(colors=['#4cc9f0', '#e9ecef']))])
+                                                                 hole=0.7, sort=False, rotation=90, direction='clockwise',
+                                                                 startangle=90,
+                                                                 domain={'x':[0,1], 'y':[0,1]},
+                                                                 marker=dict(colors=['#4cc9f0', 'rgba(233, 236, 239, 0.2)']))])
                                 compact.update_traces(textinfo='none', hoverinfo='label+value')
-                                compact.update_layout(height=120, margin={'t':2,'b':2,'l':2,'r':2}, paper_bgcolor='rgba(0,0,0,0)', showlegend=False,
-                                                      annotations=[dict(text=f"{val_clamped:.1f}", x=0.5, y=0.12, font=dict(size=12), showarrow=False)])
+                                compact.update_layout(height=140, margin={'t':5,'b':5,'l':5,'r':5}, 
+                                                      paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', 
+                                                      showlegend=False,
+                                                      annotations=[dict(text=f"{val_clamped:.1f}", x=0.5, y=0.35, 
+                                                                      font=dict(size=14, color='#4cc9f0'), 
+                                                                      showarrow=False)])
                                 p1.plotly_chart(compact, use_container_width=True)
                             except Exception:
                                 try:
@@ -944,23 +1128,33 @@ def run_speedtest():
                         remaining = max(0.0001, MAX_SCALE - val_clamped)
                         donut = _go.Figure(data=[_go.Pie(values=[val_clamped, remaining],
                                                         labels=[f'Download (Mbps)', ''],
-                                                        hole=0.6, sort=False, rotation=180, direction='clockwise',
-                                                        domain={'x':[0,1], 'y':[0,0.5]},
-                                                        marker=dict(colors=['#4cc9f0', '#e9ecef']))])
+                                                        hole=0.7, sort=False, rotation=90, direction='clockwise',
+                                                        startangle=90,
+                                                        domain={'x':[0,1], 'y':[0,1]},
+                                                        marker=dict(colors=['#4cc9f0', 'rgba(233, 236, 239, 0.2)']))])
                         donut.update_traces(textinfo='none', hoverinfo='label+value')
-                        donut.update_layout(height=260, margin={'t':6,'b':6,'l':6,'r':6}, paper_bgcolor='rgba(0,0,0,0)', showlegend=False,
-                                           annotations=[dict(text=f"{val_clamped:.2f} Mbps", x=0.5, y=0.18, font=dict(size=14), showarrow=False)])
+                        donut.update_layout(height=280, margin={'t':10,'b':10,'l':10,'r':10}, 
+                                           paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)',
+                                           showlegend=False,
+                                           annotations=[dict(text=f"{val_clamped:.2f}<br><span style='font-size:10px'>Mbps</span>", 
+                                                           x=0.5, y=0.35, font=dict(size=18, color='#4cc9f0'), 
+                                                           showarrow=False, align='center')])
                         chart_ph.plotly_chart(donut, use_container_width=True)
                         try:
                             # final small column chart for Download
                             compact = _go.Figure(data=[_go.Pie(values=[val_clamped, remaining],
                                                              labels=[f'DL', ''],
-                                                             hole=0.6, sort=False, rotation=180, direction='clockwise',
-                                                             domain={'x':[0,1], 'y':[0,0.6]},
-                                                             marker=dict(colors=['#4cc9f0', '#e9ecef']))])
+                                                             hole=0.7, sort=False, rotation=90, direction='clockwise',
+                                                             startangle=90,
+                                                             domain={'x':[0,1], 'y':[0,1]},
+                                                             marker=dict(colors=['#4cc9f0', 'rgba(233, 236, 239, 0.2)']))])
                             compact.update_traces(textinfo='none', hoverinfo='label+value')
-                            compact.update_layout(height=120, margin={'t':2,'b':2,'l':2,'r':2}, paper_bgcolor='rgba(0,0,0,0)', showlegend=False,
-                                                  annotations=[dict(text=f"{val_clamped:.2f}", x=0.5, y=0.12, font=dict(size=12), showarrow=False)])
+                            compact.update_layout(height=140, margin={'t':5,'b':5,'l':5,'r':5}, 
+                                                  paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', 
+                                                  showlegend=False,
+                                                  annotations=[dict(text=f"{val_clamped:.2f}", x=0.5, y=0.35, 
+                                                                  font=dict(size=14, color='#4cc9f0'), 
+                                                                  showarrow=False)])
                             p1.plotly_chart(compact, use_container_width=True)
                         except Exception:
                             try:
@@ -1006,23 +1200,33 @@ def run_speedtest():
                             remaining = max(0.0001, MAX_SCALE - val_clamped)
                             donut = _go.Figure(data=[_go.Pie(values=[val_clamped, remaining],
                                                             labels=[f'Upload (Mbps)', ''],
-                                                            hole=0.6, sort=False, rotation=180, direction='clockwise',
-                                                            domain={'x':[0,1], 'y':[0,0.5]},
-                                                            marker=dict(colors=['#f72585', '#e9ecef']))])
+                                                            hole=0.7, sort=False, rotation=90, direction='clockwise',
+                                                            startangle=90,
+                                                            domain={'x':[0,1], 'y':[0,1]},
+                                                            marker=dict(colors=['#f72585', 'rgba(233, 236, 239, 0.2)']))])
                             donut.update_traces(textinfo='none', hoverinfo='label+value')
-                            donut.update_layout(height=260, margin={'t':6,'b':6,'l':6,'r':6}, paper_bgcolor='rgba(0,0,0,0)', showlegend=False,
-                                               annotations=[dict(text=f"{val_clamped:.1f} Mbps", x=0.5, y=0.18, font=dict(size=14), showarrow=False)])
+                            donut.update_layout(height=280, margin={'t':10,'b':10,'l':10,'r':10}, 
+                                               paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)',
+                                               showlegend=False,
+                                               annotations=[dict(text=f"{val_clamped:.1f}<br><span style='font-size:10px'>Mbps</span>", 
+                                                               x=0.5, y=0.35, font=dict(size=18, color='#f72585'), 
+                                                               showarrow=False, align='center')])
                             chart_ph.plotly_chart(donut, use_container_width=True)
                             try:
                                 # Also show a compact semicircle in the small Upload column while measuring
                                 compact_u = _go.Figure(data=[_go.Pie(values=[val_clamped, remaining],
                                                                      labels=[f'UL', ''],
-                                                                     hole=0.6, sort=False, rotation=180, direction='clockwise',
-                                                                     domain={'x':[0,1], 'y':[0,0.6]},
-                                                                     marker=dict(colors=['#f72585', '#e9ecef']))])
+                                                                     hole=0.7, sort=False, rotation=90, direction='clockwise',
+                                                                     startangle=90,
+                                                                     domain={'x':[0,1], 'y':[0,1]},
+                                                                     marker=dict(colors=['#f72585', 'rgba(233, 236, 239, 0.2)']))])
                                 compact_u.update_traces(textinfo='none', hoverinfo='label+value')
-                                compact_u.update_layout(height=120, margin={'t':2,'b':2,'l':2,'r':2}, paper_bgcolor='rgba(0,0,0,0)', showlegend=False,
-                                                        annotations=[dict(text=f"{val_clamped:.1f}", x=0.5, y=0.12, font=dict(size=12), showarrow=False)])
+                                compact_u.update_layout(height=140, margin={'t':5,'b':5,'l':5,'r':5}, 
+                                                        paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', 
+                                                        showlegend=False,
+                                                        annotations=[dict(text=f"{val_clamped:.1f}", x=0.5, y=0.35, 
+                                                                        font=dict(size=14, color='#f72585'), 
+                                                                        showarrow=False)])
                                 p2.plotly_chart(compact_u, use_container_width=True)
                             except Exception:
                                 try:
@@ -1054,23 +1258,33 @@ def run_speedtest():
                         remaining = max(0.0001, MAX_SCALE - val_clamped)
                         donut = _go.Figure(data=[_go.Pie(values=[val_clamped, remaining],
                                                         labels=[f'Upload (Mbps)', ''],
-                                                        hole=0.6, sort=False, rotation=180, direction='clockwise',
-                                                        domain={'x':[0,1], 'y':[0,0.5]},
-                                                        marker=dict(colors=['#f72585', '#e9ecef']))])
+                                                        hole=0.7, sort=False, rotation=90, direction='clockwise',
+                                                        startangle=90,
+                                                        domain={'x':[0,1], 'y':[0,1]},
+                                                        marker=dict(colors=['#f72585', 'rgba(233, 236, 239, 0.2)']))])
                         donut.update_traces(textinfo='none', hoverinfo='label+value')
-                        donut.update_layout(height=260, margin={'t':6,'b':6,'l':6,'r':6}, paper_bgcolor='rgba(0,0,0,0)', showlegend=False,
-                                           annotations=[dict(text=f"{val_clamped:.2f} Mbps", x=0.5, y=0.18, font=dict(size=14), showarrow=False)])
+                        donut.update_layout(height=280, margin={'t':10,'b':10,'l':10,'r':10}, 
+                                           paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)',
+                                           showlegend=False,
+                                           annotations=[dict(text=f"{val_clamped:.2f}<br><span style='font-size:10px'>Mbps</span>", 
+                                                           x=0.5, y=0.35, font=dict(size=18, color='#f72585'), 
+                                                           showarrow=False, align='center')])
                         chart_ph.plotly_chart(donut, use_container_width=True)
                         try:
                             # final small column chart for Upload
                             compact_u = _go.Figure(data=[_go.Pie(values=[val_clamped, remaining],
                                                                  labels=[f'UL', ''],
-                                                                 hole=0.6, sort=False, rotation=180, direction='clockwise',
-                                                                 domain={'x':[0,1], 'y':[0,0.6]},
-                                                                 marker=dict(colors=['#f72585', '#e9ecef']))])
+                                                                 hole=0.7, sort=False, rotation=90, direction='clockwise',
+                                                                 startangle=90,
+                                                                 domain={'x':[0,1], 'y':[0,1]},
+                                                                 marker=dict(colors=['#f72585', 'rgba(233, 236, 239, 0.2)']))])
                             compact_u.update_traces(textinfo='none', hoverinfo='label+value')
-                            compact_u.update_layout(height=120, margin={'t':2,'b':2,'l':2,'r':2}, paper_bgcolor='rgba(0,0,0,0)', showlegend=False,
-                                                    annotations=[dict(text=f"{val_clamped:.2f}", x=0.5, y=0.12, font=dict(size=12), showarrow=False)])
+                            compact_u.update_layout(height=140, margin={'t':5,'b':5,'l':5,'r':5}, 
+                                                    paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', 
+                                                    showlegend=False,
+                                                    annotations=[dict(text=f"{val_clamped:.2f}", x=0.5, y=0.35, 
+                                                                    font=dict(size=14, color='#f72585'), 
+                                                                    showarrow=False)])
                             p2.plotly_chart(compact_u, use_container_width=True)
                         except Exception:
                             try:
@@ -1097,12 +1311,17 @@ def run_speedtest():
                         remaining = max(0.0001, MAX_SCALE - val_clamped)
                         compact_p = _go.Figure(data=[_go.Pie(values=[val_clamped, remaining],
                                                             labels=['Ping (ms)', ''],
-                                                            hole=0.6, sort=False, rotation=180, direction='clockwise',
-                                                            domain={'x':[0,1], 'y':[0,0.6]},
-                                                            marker=dict(colors=['#ffd166', '#e9ecef']))])
+                                                            hole=0.7, sort=False, rotation=90, direction='clockwise',
+                                                            startangle=90,
+                                                            domain={'x':[0,1], 'y':[0,1]},
+                                                            marker=dict(colors=['#ffd166', 'rgba(233, 236, 239, 0.2)']))])
                         compact_p.update_traces(textinfo='none', hoverinfo='label+value')
-                        compact_p.update_layout(height=120, margin={'t':2,'b':2,'l':2,'r':2}, paper_bgcolor='rgba(0,0,0,0)', showlegend=False,
-                                                 annotations=[dict(text=f"{val_clamped:.0f} ms", x=0.5, y=0.12, font=dict(size=12), showarrow=False)])
+                        compact_p.update_layout(height=140, margin={'t':5,'b':5,'l':5,'r':5}, 
+                                                paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', 
+                                                showlegend=False,
+                                                 annotations=[dict(text=f"{val_clamped:.0f} ms", x=0.5, y=0.35, 
+                                                                 font=dict(size=14, color='#ffd166'), 
+                                                                 showarrow=False)])
                         p3.plotly_chart(compact_p, use_container_width=True)
                         time.sleep(0.08)
                 except Exception:
@@ -1122,12 +1341,17 @@ def run_speedtest():
                     remaining = max(0.0001, MAX_SCALE - val_clamped)
                     compact_p = _go.Figure(data=[_go.Pie(values=[val_clamped, remaining],
                                                         labels=['Ping (ms)', ''],
-                                                        hole=0.6, sort=False, rotation=180, direction='clockwise',
-                                                        domain={'x':[0,1], 'y':[0,0.6]},
-                                                        marker=dict(colors=['#ffd166', '#e9ecef']))])
+                                                        hole=0.7, sort=False, rotation=90, direction='clockwise',
+                                                        startangle=90,
+                                                        domain={'x':[0,1], 'y':[0,1]},
+                                                        marker=dict(colors=['#ffd166', 'rgba(233, 236, 239, 0.2)']))])
                     compact_p.update_traces(textinfo='none', hoverinfo='label+value')
-                    compact_p.update_layout(height=120, margin={'t':2,'b':2,'l':2,'r':2}, paper_bgcolor='rgba(0,0,0,0)', showlegend=False,
-                                             annotations=[dict(text=f"{val_clamped:.2f} ms", x=0.5, y=0.12, font=dict(size=12), showarrow=False)])
+                    compact_p.update_layout(height=140, margin={'t':5,'b':5,'l':5,'r':5}, 
+                                            paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', 
+                                            showlegend=False,
+                                             annotations=[dict(text=f"{val_clamped:.2f} ms", x=0.5, y=0.35, 
+                                                             font=dict(size=14, color='#ffd166'), 
+                                                             showarrow=False)])
                     p3.plotly_chart(compact_p, use_container_width=True)
                 except Exception:
                     try:
@@ -1157,7 +1381,7 @@ def run_speedtest():
                             # Render a compact donut (rosca) chart showing Download vs Upload
                             import plotly.graph_objects as _go
 
-                            # Compact half-donut for Download (0..1000 scale)
+                            # Compact half-donut moderno para Download (0..1000 scale)
                             MAX_SCALE = 1000.0
                             try:
                                 val = float(download_speed)
@@ -1166,13 +1390,26 @@ def run_speedtest():
                             val_clamped = max(0.0, min(MAX_SCALE, val))
                             remaining = max(0.0001, MAX_SCALE - val_clamped)
                             donut = _go.Figure(data=[_go.Pie(values=[val_clamped, remaining],
-                                                            labels=[f'Download (Mbps)', ''],
-                                                            hole=0.6, sort=False, rotation=180, direction='clockwise',
-                                                            domain={'x':[0,1], 'y':[0,0.5]},
-                                                            marker=dict(colors=['#4cc9f0', '#e9ecef']))])
+                                                            labels=[f'Download', ''],
+                                                            hole=0.75, sort=False, rotation=90, direction='clockwise',
+                                                            startangle=90,
+                                                            domain={'x':[0,1], 'y':[0,1]},
+                                                            marker=dict(colors=['#4cc9f0', 'rgba(233, 236, 239, 0.15)']))])
                             donut.update_traces(textinfo='none', hoverinfo='label+value')
-                            donut.update_layout(height=320, margin={'t':30,'b':10,'l':10,'r':10}, paper_bgcolor='rgba(0,0,0,0)', showlegend=False,
-                                               annotations=[dict(text=f"{val_clamped:.2f} Mbps", x=0.5, y=0.18, font=dict(size=14), showarrow=False)])
+                            donut.update_layout(height=340, margin={'t':20,'b':20,'l':20,'r':20}, 
+                                               paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)',
+                                               showlegend=False,
+                                               annotations=[
+                                                   dict(text=f"{val_clamped:.2f}", x=0.5, y=0.4, 
+                                                       font=dict(size=24, color='#4cc9f0', family='Arial Black'), 
+                                                       showarrow=False),
+                                                   dict(text="Mbps", x=0.5, y=0.3, 
+                                                       font=dict(size=12, color='#888'), 
+                                                       showarrow=False),
+                                                   dict(text="Download", x=0.5, y=0.55, 
+                                                       font=dict(size=14, color='#4cc9f0'), 
+                                                       showarrow=False)
+                                               ])
                             st.plotly_chart(donut, use_container_width=True)
                         except Exception:
                             # Fallback to a simple metric if plotly isn't installed or fails
@@ -2132,63 +2369,147 @@ def background_remover():
 
 # ---------------------- Página Inicial ---------------------- #
 def home_page():
-    st.title("🚀 Central de Ferramentas Multimídia")
+    st.markdown("<h1 style='text-align: center;'>🎬 Central de Ferramentas Multimídia</h1>", unsafe_allow_html=True)
     
     st.markdown("""
-    ### 👋 Bem-vindo à nossa plataforma completa!
+    <div style='text-align: center; padding: 20px; background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%); 
+    border-radius: 15px; margin-bottom: 30px;'>
+        <h3 style='color: #667eea;'>✨ Bem-vindo à Plataforma Completa de Processamento Multimídia!</h3>
+        <p style='font-size: 16px; color: #888;'>Ferramentas profissionais para download, transcrição, TTS e muito mais</p>
+    </div>
+    """, unsafe_allow_html=True)
     
-    Esta aplicação oferece diversas ferramentas úteis para você:
-    """)
-    
-    col1, col2 = st.columns(2)
+    # Grid de features com cards modernos
+    col1, col2, col3 = st.columns(3)
     
     with col1:
         st.markdown("""
-        ### 🎬 **Baixar Vídeos do YouTube**
-        - Download de vídeos em alta qualidade (MP4)
-        - Extração de áudio (MP3)
-        - Suporte a múltiplas URLs
-        - Lista de downloads organizada
-        """)
+        <div style='padding: 25px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+        border-radius: 15px; height: 280px; box-shadow: 0 8px 16px rgba(102, 126, 234, 0.3);'>
+            <h2 style='color: white; margin-top: 0;'>🎬 Download</h2>
+            <p style='color: white; font-size: 14px;'>
+                ✓ Vídeos em alta qualidade<br>
+                ✓ Extração de áudio MP3<br>
+                ✓ Múltiplas URLs simultâneas<br>
+                ✓ Download rápido e organizado
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
         
-        st.markdown("""
-        ### 🎵 **Transcrição de Áudio**
-        - Transcrição automática de vídeos/áudios
-        - Geração de PDF com transcrição
-        - Suporte a múltiplos formatos
-        - Reconhecimento em português brasileiro
-        """)
-    
     with col2:
         st.markdown("""
-        ### 🚀 **Teste de Velocidade**
-        - Velocidade de download
-        - Velocidade de upload  
-        - Medição de ping/latência
-        - Informações do servidor
-        """)
+        <div style='padding: 25px; background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); 
+        border-radius: 15px; height: 280px; box-shadow: 0 8px 16px rgba(56, 239, 125, 0.3);'>
+            <h2 style='color: white; margin-top: 0;'>🎵 Transcrição</h2>
+            <p style='color: white; font-size: 14px;'>
+                ✓ Transcrição automática<br>
+                ✓ Geração de PDF/TXT<br>
+                ✓ Múltiplos idiomas<br>
+                ✓ Timestamps precisos
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
         
+    with col3:
         st.markdown("""
-        ### 🖼️ **Removedor de Fundo**
-        - Remoção automática de fundo de imagens
-        - Suporte a diversos formatos
-        - Download da imagem processada
-        - Tecnologia de IA avançada
-        """)
+        <div style='padding: 25px; background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); 
+        border-radius: 15px; height: 280px; box-shadow: 0 8px 16px rgba(245, 87, 108, 0.3);'>
+            <h2 style='color: white; margin-top: 0;'>🔊 TTS Avançado</h2>
+            <p style='color: white; font-size: 14px;'>
+                ✓ 82+ vozes naturais<br>
+                ✓ 25 idiomas disponíveis<br>
+                ✓ Qualidade profissional<br>
+                ✓ Download em MP3/WAV
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
     
+    st.markdown("<br>", unsafe_allow_html=True)
+    
+    col4, col5, col6 = st.columns(3)
+    
+    with col4:
+        st.markdown("""
+        <div style='padding: 25px; background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); 
+        border-radius: 15px; height: 280px; box-shadow: 0 8px 16px rgba(250, 112, 154, 0.3);'>
+            <h2 style='color: white; margin-top: 0;'>🚀 Speedtest</h2>
+            <p style='color: white; font-size: 14px;'>
+                ✓ Download/Upload<br>
+                ✓ Latência e Ping<br>
+                ✓ Histórico de testes<br>
+                ✓ Gráficos interativos
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
+        
+    with col5:
+        st.markdown("""
+        <div style='padding: 25px; background: linear-gradient(135deg, #30cfd0 0%, #330867 100%); 
+        border-radius: 15px; height: 280px; box-shadow: 0 8px 16px rgba(48, 207, 208, 0.3);'>
+            <h2 style='color: white; margin-top: 0;'>🖼️ Remove BG</h2>
+            <p style='color: white; font-size: 14px;'>
+                ✓ Remoção com IA<br>
+                ✓ Edição manual<br>
+                ✓ Múltiplos formatos<br>
+                ✓ Alta qualidade
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
+        
+    with col6:
+        st.markdown("""
+        <div style='padding: 25px; background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); 
+        border-radius: 15px; height: 280px; box-shadow: 0 8px 16px rgba(168, 237, 234, 0.3);'>
+            <h2 style='color: #333; margin-top: 0;'>💡 Recursos</h2>
+            <p style='color: #555; font-size: 14px;'>
+                ✓ Interface intuitiva<br>
+                ✓ Processamento rápido<br>
+                ✓ Sem limites de uso<br>
+                ✓ 100% gratuito
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    st.markdown("<br><br>", unsafe_allow_html=True)
+    
+    # Seção de como usar
     st.markdown("""
-    ---
-    ### 🎯 **Como usar:**
-    1. **Escolha uma ferramenta** no menu lateral
-    2. **Siga as instruções** de cada seção
-    3. **Aproveite os resultados!**
+    <div style='padding: 30px; background-color: #1E1E1E; border-radius: 15px; border-left: 5px solid #667eea;'>
+        <h2 style='color: #667eea; margin-top: 0;'>🎯 Como Começar</h2>
+        <ol style='font-size: 16px; line-height: 2;'>
+            <li><b>Escolha uma ferramenta</b> no menu lateral esquerdo</li>
+            <li><b>Siga as instruções</b> específicas de cada seção</li>
+            <li><b>Processe seus arquivos</b> com tecnologia de ponta</li>
+            <li><b>Baixe os resultados</b> quando estiverem prontos!</li>
+        </ol>
+    </div>
+    """, unsafe_allow_html=True)
     
-    ### 💡 **Dicas:**
-    - Para vídeos do YouTube, separe múltiplas URLs com vírgula
-    - Para melhor qualidade na remoção de fundo, use imagens nítidas
-    - O teste de velocidade pode levar alguns minutos
-    - As transcrições funcionam melhor com áudio claro
-    """)
+    st.markdown("<br>", unsafe_allow_html=True)
+    
+    # Dicas úteis
+    with st.expander("💡 Dicas e Truques", expanded=False):
+        st.markdown("""
+        **📹 Download de Vídeos:**
+        - Separe múltiplas URLs com vírgula para download em lote
+        - Escolha MP3 para economizar espaço com áudio
+        
+        **🎵 Transcrição:**
+        - Use áudio claro para melhores resultados
+        - PDFs incluem timestamps automáticos
+        
+        **🔊 Text-to-Speech:**
+        - Edge TTS oferece as vozes mais naturais
+        - Filtre por idioma para encontrar a voz perfeita
+        
+        **🚀 Teste de Velocidade:**
+        - Feche outros programas para resultados precisos
+        - Execute múltiplos testes para média confiável
+        
+        **🖼️ Remoção de Fundo:**
+        - Imagens nítidas produzem melhores resultados
+        - Use edição manual para ajustes finos
+        """)
 
 def tts_page():
     """Página de Text-to-Speech: cole texto, escolha provedor/voz e gere áudio reproduzível e para download."""
@@ -2600,19 +2921,26 @@ def tts_page():
     """, unsafe_allow_html=True)
 
 def main():
-    st.set_page_config(
-        page_title="Central de Ferramentas Multimídia",
-        page_icon="🚀",
-        layout="wide"
-    )
+    # st.set_page_config já foi chamado no início do arquivo
     
     init_session_state()
     init_transcription_session_state()
 
-    # Menu sidebar
-    st.sidebar.title("📱 Menu Principal")
+    # Menu sidebar moderno com ícones e descrições
+    st.sidebar.markdown("# 🎬 Central Multimídia")
+    st.sidebar.markdown("---")
+    
+    # Adiciona informações do usuário
+    st.sidebar.markdown("""
+    <div style='padding: 15px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+    border-radius: 10px; margin-bottom: 20px; text-align: center;'>
+        <h3 style='color: white; margin: 0;'>✨ Bem-vindo!</h3>
+        <p style='color: white; margin: 5px 0 0 0; font-size: 14px;'>Escolha uma ferramenta</p>
+    </div>
+    """, unsafe_allow_html=True)
+    
     page = st.sidebar.radio(
-        "Escolha uma ferramenta:", 
+        "🔧 Ferramentas Disponíveis:", 
         [
             "🏠 Página Inicial",
             "🎬 Baixar Vídeos", 
@@ -2620,8 +2948,19 @@ def main():
             "🔊 Texto para Fala",
             "🚀 Teste de Velocidade",
             "🖼️ Remover Fundo"
-        ]
+        ],
+        label_visibility="visible"
     )
+    
+    # Informações adicionais na sidebar
+    st.sidebar.markdown("---")
+    st.sidebar.markdown("""
+    <div style='padding: 10px; background-color: #262730; border-radius: 8px; margin-top: 20px;'>
+        <p style='font-size: 12px; color: #888; margin: 0;'>
+        💡 <b>Dica:</b> Todas as ferramentas funcionam offline, exceto download de vídeos e TTS Edge.
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
 
     # Roteamento das páginas
     if page == "🏠 Página Inicial":
