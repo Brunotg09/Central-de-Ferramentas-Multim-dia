@@ -2330,6 +2330,8 @@ def tts_page():
         'en-CA-ClaraNeural',
         'en-CA-LiamNeural'
     ]
+    selected_recommended = st.selectbox('Voz recomendada (testar rapidamente)', recommended_voices)
+    
     # Voice language filter
     voice_languages = {
         '🇧🇷 Português': [v for v in recommended_voices if v.startswith('pt-')],
