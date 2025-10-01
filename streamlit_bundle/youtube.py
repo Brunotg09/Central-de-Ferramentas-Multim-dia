@@ -2216,20 +2216,158 @@ def tts_page():
 
     # Recommended voices dropdown (common natural voices - edge-tts identifiers)
     recommended_voices = [
-        'Nenhuma (Custom)',
+        # Português
         'pt-BR-FranciscaNeural',
         'pt-BR-AntonioNeural',
         'pt-BR-RaissaNeural',
+        'pt-BR-HeloisaRUS',
+        'pt-BR-Daniel',
+        'pt-BR-FranciscaRUS',
+        'pt-BR-HumbertoRUS',
+        'pt-PT-FernandaNeural',
+        'pt-PT-RaquelNeural',
+        # Inglês
         'en-US-LiamNeural',
         'en-GB-LiamNeural',
         'en-US-JennyNeural',
         'en-US-GuyNeural',
-        # Add additional common voices as fallbacks
+        'en-US-AriaNeural',
+        'en-US-ZiraNeural',
+        'en-GB-SoniaNeural',
+        'en-GB-RyanNeural',
         'en-AU-NathanNeural',
         'en-CA-LiamNeural',
-        'es-ES-ElviraNeural'
+        'en-IN-NeerjaNeural',
+        'en-IN-PrabhatNeural',
+        # Espanhol
+        'es-ES-ElviraNeural',
+        'es-MX-DaliaNeural',
+        'es-AR-ElenaNeural',
+        'es-CO-SalomeNeural',
+        'es-US-PalomaNeural',
+        'es-US-AlonsoNeural',
+        # Francês
+        'fr-FR-DeniseNeural',
+        'fr-CA-SylvieNeural',
+        'fr-BE-CharlineNeural',
+        'fr-CH-ArianeNeural',
+        # Alemão
+        'de-DE-KatjaNeural',
+        'de-DE-ConradNeural',
+        'de-AT-IngridNeural',
+        'de-CH-LeniNeural',
+        # Italiano
+        'it-IT-ElsaNeural',
+        'it-IT-DiegoNeural',
+        # Japonês
+        'ja-JP-NanamiNeural',
+        'ja-JP-KeitaNeural',
+        # Chinês
+        'zh-CN-XiaoxiaoNeural',
+        'zh-CN-YunyangNeural',
+        'zh-CN-XiaohanNeural',
+        'zh-CN-XiaomoNeural',
+        'zh-CN-XiaoxuanNeural',
+        'zh-CN-XiaoyouNeural',
+        'zh-TW-HsiaoChenNeural',
+        'zh-TW-YunJheNeural',
+        'zh-HK-HiuMaanNeural',
+        'zh-HK-WanLungNeural',
+        # Coreano
+        'ko-KR-SunHiNeural',
+        'ko-KR-InJoonNeural',
+        # Árabe
+        'ar-SA-ZariyahNeural',
+        'ar-SA-HamedNeural',
+        'ar-EG-SalmaNeural',
+        'ar-EG-ShakirNeural',
+        # Russo
+        'ru-RU-SvetlanaNeural',
+        'ru-RU-DmitryNeural',
+        # Holandês
+        'nl-NL-ColetteNeural',
+        'nl-NL-MaartenNeural',
+        # Sueco
+        'sv-SE-SofieNeural',
+        'sv-SE-MattiasNeural',
+        # Norueguês
+        'nb-NO-PernilleNeural',
+        'nb-NO-FinnNeural',
+        # Dinamarquês
+        'da-DK-ChristelNeural',
+        'da-DK-JeppeNeural',
+        # Finlandês
+        'fi-FI-SelmaNeural',
+        'fi-FI-HarriNeural',
+        # Polonês
+        'pl-PL-AgnieszkaNeural',
+        'pl-PL-MarekNeural',
+        # Turco
+        'tr-TR-EmelNeural',
+        'tr-TR-AhmetNeural',
+        # Tcheco
+        'cs-CZ-VlastaNeural',
+        'cs-CZ-AntoninNeural',
+        # Húngaro
+        'hu-HU-NoemiNeural',
+        'hu-HU-TamasNeural',
+        # Grego
+        'el-GR-AthinaNeural',
+        'el-GR-NestorasNeural',
+        # Hebraico
+        'he-IL-HilaNeural',
+        'he-IL-AvriNeural',
+        # Hindi
+        'hi-IN-SwaraNeural',
+        'hi-IN-MadhurNeural',
+        # Tâmil
+        'ta-IN-PallaviNeural',
+        'ta-IN-ValluvarNeural',
+        # Telugu
+        'te-IN-ShrutiNeural',
+        'te-IN-MohanNeural',
+        # Canadense
+        'en-CA-ClaraNeural',
+        'en-CA-LiamNeural'
     ]
-    selected_recommended = st.selectbox('Voz recomendada (testar rapidamente)', recommended_voices)
+    # Voice language filter
+    voice_languages = {
+        '🇧🇷 Português': [v for v in recommended_voices if v.startswith('pt-')],
+        '🇺🇸 Inglês': [v for v in recommended_voices if v.startswith('en-')],
+        '🇪🇸 Espanhol': [v for v in recommended_voices if v.startswith('es-')],
+        '🇫🇷 Francês': [v for v in recommended_voices if v.startswith('fr-')],
+        '🇩🇪 Alemão': [v for v in recommended_voices if v.startswith('de-')],
+        '🇮🇹 Italiano': [v for v in recommended_voices if v.startswith('it-')],
+        '🇯🇵 Japonês': [v for v in recommended_voices if v.startswith('ja-')],
+        '🇨🇳 Chinês': [v for v in recommended_voices if v.startswith('zh-')],
+        '🇰🇷 Coreano': [v for v in recommended_voices if v.startswith('ko-')],
+        '🇸🇦 Árabe': [v for v in recommended_voices if v.startswith('ar-')],
+        '🇷🇺 Russo': [v for v in recommended_voices if v.startswith('ru-')],
+        '🇳🇱 Holandês': [v for v in recommended_voices if v.startswith('nl-')],
+        '🇸🇪 Sueco': [v for v in recommended_voices if v.startswith('sv-')],
+        '🇳🇴 Norueguês': [v for v in recommended_voices if v.startswith('nb-')],
+        '🇩🇰 Dinamarquês': [v for v in recommended_voices if v.startswith('da-')],
+        '🇫🇮 Finlandês': [v for v in recommended_voices if v.startswith('fi-')],
+        '🇵🇱 Polonês': [v for v in recommended_voices if v.startswith('pl-')],
+        '🇹🇷 Turco': [v for v in recommended_voices if v.startswith('tr-')],
+        '🇨🇿 Tcheco': [v for v in recommended_voices if v.startswith('cs-')],
+        '🇭🇺 Húngaro': [v for v in recommended_voices if v.startswith('hu-')],
+        '🇬🇷 Grego': [v for v in recommended_voices if v.startswith('el-')],
+        '🇮🇱 Hebraico': [v for v in recommended_voices if v.startswith('he-')],
+        '🇮🇳 Hindi': [v for v in recommended_voices if v.startswith('hi-')],
+        '🇮🇳 Tâmil': [v for v in recommended_voices if v.startswith('ta-')],
+        '🇮🇳 Telugu': [v for v in recommended_voices if v.startswith('te-')],
+        '🌍 Todas as vozes': recommended_voices
+    }
+    
+    selected_language = st.selectbox('🌍 Filtrar por idioma:', list(voice_languages.keys()))
+    filtered_voices = voice_languages[selected_language]
+    
+    # Show voice statistics
+    total_voices = len(recommended_voices)
+    total_languages = len([k for k in voice_languages.keys() if k != '🌍 Todas as vozes'])
+    
+    st.info(f'📊 **{total_voices} vozes gratuitas** disponíveis em **{total_languages} idiomas** | Filtrando: {len(filtered_voices)} vozes de {selected_language}')
 
     # Map presets to voice identifiers for edge-tts; fallbacks used if not available
     def preset_to_voice(preset):
@@ -2246,7 +2384,7 @@ def tts_page():
     with col1:
         # Determine default voice value
         default_voice = ''
-        if selected_recommended and selected_recommended != 'Nenhuma (Custom)':
+        if selected_recommended:
             default_voice = selected_recommended
         elif voice_preset and voice_preset != 'Nenhum':
             default_voice = preset_to_voice(voice_preset)
@@ -2294,7 +2432,7 @@ def tts_page():
                             raise RuntimeError('Nenhuma voice candidate funcionou')
 
                         # Build candidate list: prioritize explicit recommended selection
-                        if selected_recommended and selected_recommended != 'Nenhuma (Custom)':
+                        if selected_recommended:
                             candidate_voices = [selected_recommended]
                         elif voice_preset == 'Liam (LLM)':
                             # Try many Liam-like candidates and known-good voices
@@ -2392,15 +2530,23 @@ def tts_page():
 
     # Show instructions for installing providers
     with st.expander('Instalação / Dicas (opcional)'):
-        st.markdown('- edge-tts: provedor com vozes mais naturais (Windows/Microsoft voices). Instalar: pip install edge-tts')
-        st.markdown('- gTTS: rápido e simples (requer internet): pip install gTTS')
-        st.markdown('- pyttsx3: offline (voz robótica, mas sem internet): pip install pyttsx3')
+        st.markdown('''
+        ### 🎯 **Sobre as Vozes Disponíveis:**
+        - **80+ vozes gratuitas** em **35+ idiomas** da Microsoft Edge TTS
+        - Qualidade neural de alta fidelidade (sem custos!)
+        - Suporte a idiomas: Português, Inglês, Espanhol, Francês, Alemão, Italiano, Japonês, Chinês, Coreano, Árabe, Russo, Holandês, Sueco, Norueguês, Dinamarquês, Finlandês, Polonês, Turco, Tcheco, Húngaro, Grego, Hebraico, Hindi, Tâmil, Telugu
+        
+        ### 📦 **Provedores:**
+        - edge-tts: provedor com vozes mais naturais (Windows/Microsoft voices). Instalar: `pip install edge-tts`
+        - gTTS: rápido e simples (Google, requer internet): `pip install gTTS`
+        - pyttsx3: offline (voz robótica, mas sem internet): `pip install pyttsx3`
+        ''')
 
     # Diagnostic probe for edge-tts voices (se disponível)
     if EDGE_TTS_AVAILABLE:
         st.markdown('---')
         if st.button('🧪 Diagnosticar vozes edge-tts (probe rápido)'):
-            st.info('Executando probe: tentarei sintetizar uma curta frase com cada voz recomendada e reportarei sucesso/erro. Isso pode demorar alguns segundos por voz.')
+            st.info(f'Executando probe: tentarei sintetizar uma curta frase com cada voz do idioma "{selected_language}" e reportarei sucesso/erro. Isso pode demorar alguns segundos por voz.')
             probe_results = {}
             import asyncio
             try:
@@ -2422,7 +2568,7 @@ def tts_page():
                         safe_remove_file(tmp)
                         return v, f'ERR:{str(e)}'
 
-                voices_to_test = [v for v in recommended_voices if v != 'Nenhuma (Custom)']
+                voices_to_test = filtered_voices
                 loop = asyncio.new_event_loop()
                 asyncio.set_event_loop(loop)
                 for v in voices_to_test:
